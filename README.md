@@ -20,7 +20,9 @@ To distribute the load of handeling user requests and doing the actual rankings 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## ✨ Features
-The algorithm to determine the optimal ranking of results features to core parts. First, we match the websites title with the user query to find the optimal match purely based on content. Second, we rely on previously collected data by other users to find the best website for the user.
+The algorithm to determine the optimal ranking of results features to core parts. First, we match the websites title with the user query to find the optimal match purely based on content. Second, we rely on previously collected data by other users to find the best website for the user.</p>
+
+The website selection process on this server, triggered by the '/search' endpoint, operates as follows: It expects a JSON object in the GET request, containing a query vector. The provided query vector is compared to the vector representations of websites stored in the MongoDB collection. Using cosine similarity calculations, the server measures the similarity between the query vector and each stored vector. Websites are then ranked by their similarity to the query vector, and the results are returned as a list of websites and their respective similarity scores. This process enables users to search for websites that are most similar to the provided query vector, which can be a valuable feature for various applications such as content recommendation or similarity-based search.
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## 💻 Usage
