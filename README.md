@@ -23,6 +23,27 @@ To distribute the load of handeling user requests and doing the actual rankings 
 The algorithm to determine the optimal ranking of results features to core parts. First, we match the websites title with the user query to find the optimal match purely based on content. Second, we rely on previously collected data by other users to find the best website for the user.</p>
 
 The website selection process on this server, triggered by the '/search' endpoint, operates as follows: It expects a JSON object in the GET request, containing a query vector. The provided query vector is compared to the vector representations of websites stored in the MongoDB collection. Using cosine similarity calculations, the server measures the similarity between the query vector and each stored vector. Websites are then ranked by their similarity to the query vector, and the results are returned as a list of websites and their respective similarity scores. This process enables users to search for websites that are most similar to the provided query vector, which can be a valuable feature for various applications such as content recommendation or similarity-based search.
+
+## Addressing Data Relevance: A Formula for Weighting Views
+
+In various data-driven applications, determining the relevance of data points, such as views or interactions, is a critical challenge. One common scenario involves assessing the importance of such data while considering both the quantity and the recency of those interactions. 
+
+### The Problem:
+
+The challenge lies in appropriately valuing the data points, as not all views are equal, and their relevance change over time. To address this issue, a formula has been devised to calculate a relevance score from views.
+
+### The Formula:
+
+The relevance score formula is as follows:
+
+$$
+\
+s = \sum_{w=0}^{10} [\frac{1}{w+1} \cdot \frac{1}{1 + e^{(1 - \frac{\text{views}(w)}{10,000} + e)}}] + \frac{1}{11} \cdot \frac{1}{1 + e^{(1 - \frac{\text{views}(<11)}{10,000} + e)}}
+\
+$$
+
+In this formula, (_w_) represents the week, and $\text{views}(w)\$ is the number of views for that week. The summation considers views over 11 weeks and calculates a relevance score that balances the significance of views based on both their quantity and recency. Additionally, the formula includes a term that includes all even older views, providing further adjustments to the relevance score. This approach is valuable in scenarios where it's essential to prioritize more recent and relevant data while accounting for diminishing importance of older user data, while not completely ignoring the later.
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## 💻 Usage
