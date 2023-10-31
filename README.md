@@ -9,6 +9,9 @@ This is a simple Flask application that provides two endpoints to search for sim
   - [📖 Table of Contents](#-table-of-contents)
   - [❓ Why?](#-why)
   - [✨ Features](#-features)
+  - [Addressing Data Relevance: A Formula for Weighting Views](#addressing-data-relevance-a-formula-for-weighting-views)
+    - [The Problem:](#the-problem)
+    - [The Formula:](#the-formula)
   - [💻 Usage](#-usage)
   - [💾 Structure](#-structure)
   - [🚫 Limitations](#-limitations)
@@ -38,7 +41,7 @@ The relevance score formula is as follows:
 
 $$
 \
-s = \sum_{w=0}^{10} [\frac{1}{w+1} \cdot \frac{1}{1 + e^{(1 - \frac{\text{views}(w)}{10,000} + e)}}] + \frac{1}{11} \cdot \frac{1}{1 + e^{(1 - \frac{\text{views}(<11)}{10,000} + e)}}
+s = \sum_{w=0}^{10} [\frac{1}{w+1} \cdot \frac{1}{1 + e^{(1 - \frac{\text{views}(w)}{10,000} + e)}}] + \frac{1}{11} \cdot \frac{1}{1 + e^{(1 - \frac{\text{views}(>10)}{10,000} + e)}}
 \
 $$
 

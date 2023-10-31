@@ -32,7 +32,6 @@ def calculate_relevance_score(views):
     older_views = sum(views[11:])
     older_term = 1 / 11 * (1 / (1 + math.exp(1 - (older_views / 10000) + math.e)))
     relevance_score += older_term
-
     return relevance_score
 
 @app.route('/search', methods=['GET'])
