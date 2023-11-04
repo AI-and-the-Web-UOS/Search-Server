@@ -5,9 +5,9 @@ from datetime import datetime, timedelta
 import copy
 
 def testDatabase():
-    # Connect to MongoDB (make sure your MongoDB server is running)
-    client = MongoClient("mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.0.2")  # Replace with your MongoDB server's connection string
-    db = client.searchDatabase  # Replace with your actual database name
+    # Connect to MongoDB
+    client = MongoClient("mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.0.2")
+    db = client.searchDatabase
 
     # Define the end date for the last 10 weeks
     end_date = datetime.now()
@@ -48,7 +48,7 @@ def testDatabase():
 
 def get_last_weeks(website_url):
     client = MongoClient("mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.0.2")
-    db = client.searchDatabase  # Replace with your actual database name
+    db = client.searchDatabase
     end_date = datetime.now()
     start_date = end_date - timedelta(weeks=10)
 
@@ -66,9 +66,9 @@ def get_last_weeks(website_url):
     client.close()
 
 def addTestData():
-    # Connect to MongoDB (make sure your MongoDB server is running)
+    # Connect to MongoDB
     client = MongoClient("mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.0.2")
-    db = client.searchDatabase  # Replace with your actual database name
+    db = client.searchDatabase 
 
     # Define the start date (previous year) and current date
     start_date = datetime(datetime.now().year - 1, 1, 1)
