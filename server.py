@@ -4,6 +4,8 @@ import numpy as np
 from scipy.spatial.distance import cdist
 import math
 from datetime import datetime, timedelta
+import time
+from relevance import *
 
 app = Flask(__name__)
 
@@ -11,41 +13,6 @@ app = Flask(__name__)
 client = MongoClient('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.0.2')
 db = client['searchDatabase']
 websiteCollection = db['Website']
-
-def get_last_weeks(website_url):
-    # Query for views within the last 10 weeks for the specified website
-    views_data = db.Views.find({
-        "url": website_url,
-    })
-
-    # Print the retrieved views data
-    views = []
-    for view in views_data:
-        views.append(view["views"]) 
-    return reversed(views)
-
-def calculate_relevance_score(views):
-    relevance_score = 0
-
-    # Loop through the first 11 weeks
-    for w in range(11):
-        # Calculate the 'w_term' which is 1 / (w + 1)
-        w_term = 1 / (w + 1)
-
-        # Get the number of views for the current week 'w'
-        views_w = views[w] if w < len(views) else 0
-
-        # Calculate the 'e_term' which involves exponential calculations based on the views
-        e_term = 1 / (1 + math.exp(1 - (views_w / 10000) + math.e))
-
-        # Add the product of 'w_term' and 'e_term' to the relevance score
-        relevance_score += w_term * e_term
-
-    # Calculate the sum of views for weeks beyond the first 11 weeks (older views)
-    older_views = sum(views[11:])
-    older_term = 1 / 11 * (1 / (1 + math.exp(1 - (older_views / 10000) + math.e)))
-    relevance_score += older_term
-    return relevance_score
 
 @app.route('/search', methods=['GET'])
 def search():
