@@ -3,13 +3,26 @@ from pymongo import MongoClient
 import numpy as np
 from scipy.spatial.distance import cdist
 import math
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
 # Set up a connection to your MongoDB database
 client = MongoClient('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.0.2')
-db = client['search-shit']
-collection = db['sites']
+db = client['searchDatabase']
+websiteCollection = db['Website']
+
+def get_last_weeks(website_url):
+    # Query for views within the last 10 weeks for the specified website
+    views_data = db.Views.find({
+        "url": website_url,
+    })
+
+    # Print the retrieved views data
+    views = []
+    for view in views_data:
+        views.append(view["views"]) 
+    return reversed(views)
 
 def calculate_relevance_score(views):
     relevance_score = 0
@@ -47,8 +60,8 @@ def search():
     if not query_vector.any():
         return jsonify({'error': 'No vector provided'}), 400
 
-    # Retrieve documents from the MongoDB collection
-    documents = list(collection.find())
+    # Retrieve documents from the MongoDB websiteCollection
+    documents = list(websiteCollection.find())
 
     # Calculate cosine similarity between the query vector and stored vectors
     results = []
@@ -56,8 +69,8 @@ def search():
         vector = np.array(document['vector'])
         similarity = cdist([query_vector], [vector])[0]
         results.append({
-            'website': document['website'],
-            'similarity': similarity
+            'website': document['url'],
+            'similarity': similarity.tolist()
         })
 
     # Sort results by similarity in descending order
@@ -74,7 +87,7 @@ def add_view():
         return jsonify({'error': 'No JSON data provided'}), 400
     
     site_title = data["site"]
-    site_document = collection.find_one({'URL': site_title})
+    site_document = websiteCollection.find_one({'URL': site_title})
 
     if site_document:
         
@@ -85,7 +98,7 @@ def add_view():
         new_views = current_views + 1
 
         # Update values in the mongoDB database
-        collection.update_one(
+        websiteCollection.update_one(
             {'Title': site_title},
             {'$set': {'Views': new_views}}
         )
