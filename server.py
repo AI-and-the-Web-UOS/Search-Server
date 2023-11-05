@@ -6,11 +6,14 @@ import math
 from datetime import datetime, timedelta
 import time
 from relevance import *
+import threading
 
 app = Flask(__name__)
 
+mongoDB = 'mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.0.2'
+
 # Set up a connection to your MongoDB database
-client = MongoClient('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.0.2')
+client = MongoClient(mongoDB)
 db = client['searchDatabase']
 websiteCollection = db['Website']
 
@@ -35,13 +38,16 @@ def search():
     for document in documents:
         vector = np.array(document['vector'])
         similarity = cdist([query_vector], [vector])[0]
+        print(document["relevance"])
         results.append({
             'website': document['url'],
-            'similarity': similarity.tolist()
+            'score': similarity.tolist()[0] + document["relevance"],
+            'content': document['content'],
+            'title': document['title']
         })
 
     # Sort results by similarity in descending order
-    results = sorted(results, key=lambda x: x['similarity'], reverse=True)
+    results = sorted(results, key=lambda x: x['score'], reverse=True)
 
     return jsonify({'results': results})
 
@@ -75,4 +81,6 @@ def add_view():
     return "", 200
 
 if __name__ == '__main__':
+    x = threading.Thread(target=periodic_task, args=(mongoDB,), daemon=True)
+    x.start()
     app.run()

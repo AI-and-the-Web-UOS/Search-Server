@@ -16,7 +16,7 @@ def get_last_weeks(db, website_url):
     views = []
     for view in views_data:
         views.append(view["views"]) 
-    return reversed(views)
+    return list(reversed(views))
 
 # Define a function to update the relevance score for all websites
 def updateRelevanceScores(db):
@@ -28,14 +28,14 @@ def updateRelevanceScores(db):
     for website in websites:
         url = website["url"]
         data = get_last_weeks(db, url)
-        relevance_score = calculate_relevance_score(data)
+        relevance_score = float(calculate_relevance_score(data))
         # Update the relevance field in the database
         db.Website.update_one({"_id": website["_id"]}, {"$set": {"relevance": relevance_score}})
 
 # Define a function to run the update task periodically
-def periodic_task():
+def periodic_task(mongoDB):
     # Connect to MongoDB
-    client = MongoClient("mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.0.2") 
+    client = MongoClient(mongoDB) 
     db = client.searchDatabase
     while True:
         updateRelevanceScores(db)
@@ -45,7 +45,7 @@ def calculate_relevance_score(views):
     relevance_score = 0
 
     # Loop through the first 11 weeks
-    for w in range(11):
+    for w in range(min(11, len(views))):
         # Calculate the 'w_term' which is 1 / (w + 1)
         w_term = 1 / (w + 1)
 
@@ -59,7 +59,8 @@ def calculate_relevance_score(views):
         relevance_score += w_term * e_term
 
     # Calculate the sum of views for weeks beyond the first 11 weeks (older views)
-    older_views = sum(views[11:])
-    older_term = 1 / 11 * (1 / (1 + math.exp(1 - (older_views / 10000) + math.e)))
-    relevance_score += older_term
+    if len(views) > 10:
+        older_views = sum(views[11:])
+        older_term = 1 / 11 * (1 / (1 + math.exp(1 - (older_views / 10000) + math.e)))
+        relevance_score += older_term
     return relevance_score
