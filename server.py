@@ -38,7 +38,6 @@ def search():
     for document in documents:
         vector = np.array(document['vector'])
         similarity = cdist([query_vector], [vector])[0]
-        print(document["relevance"])
         results.append({
             'website': document['url'],
             'score': similarity.tolist()[0] + document["relevance"],

@@ -12,7 +12,7 @@ def get_last_weeks(db, website_url):
         "url": website_url,
     })
 
-    # Print the retrieved views data
+    # Add the views to a list
     views = []
     for view in views_data:
         views.append(view["views"]) 
@@ -38,8 +38,15 @@ def periodic_task(mongoDB):
     client = MongoClient(mongoDB) 
     db = client.searchDatabase
     while True:
-        updateRelevanceScores(db)
-        time.sleep(3600)  # Sleep for one hour (3600 seconds)
+        try:
+            updateRelevanceScores(db)
+            time.sleep(3600)  # Sleep for one hour (3600 seconds)
+        except:
+            client.close()
+            print("Could not update relevance score")
+            time.sleep(60)
+            client = MongoClient(mongoDB) 
+            db = client.searchDatabase
 
 def calculate_relevance_score(views):
     relevance_score = 0
