@@ -60,7 +60,7 @@ def add_view():
         return jsonify({'error': 'No JSON data provided'}), 400
     
     site_title = data["site"]
-    site_document = websiteCollection.find_one({'URL': site_title})
+    site_document = websiteCollection.find_one({'url': site_title})
 
     if site_document:
         
