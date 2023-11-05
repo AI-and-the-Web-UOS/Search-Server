@@ -59,24 +59,29 @@ def add_view():
     if not data:
         return jsonify({'error': 'No JSON data provided'}), 400
     
-    site_title = data["site"]
-    site_document = websiteCollection.find_one({'url': site_title})
+    url = data["site"]
+    
+    # Get the current week and year
+    current_week = datetime.now().isocalendar()[1]
+    current_year = datetime.now().year
 
-    if site_document:
-        
-        # Retrieves the current views
-        current_views = site_document.get('Views', 0)
+    # Find the document for the specified URL, current week, and current year
+    query = {"url": url, "week": current_week, "year": current_year}
+    view_document = db.Views.find_one(query)
 
-        # Increase number of views plus one
-        new_views = current_views + 1
-
-        # Update values in the mongoDB database
-        websiteCollection.update_one(
-            {'Title': site_title},
-            {'$set': {'Views': new_views}}
-        )
+    if view_document:
+        # If the document exists, increment the "views" field by one
+        new_views = view_document["views"] + 1
+        db.Views.update_one(query, {"$set": {"views": new_views}})
     else:
-        print("Website not found")
+        # If the document does not exist, create a new document with views=1
+        new_view_document = {
+            "url": url,
+            "week": current_week,
+            "year": current_year,
+            "views": 1
+        }
+        db.Views.insert_one(new_view_document)
 
     return "", 200
 
