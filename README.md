@@ -9,6 +9,12 @@ This is a simple Flask application that provides two endpoints to search for sim
   - [📖 Table of Contents](#-table-of-contents)
   - [❓ Why?](#-why)
   - [✨ Features](#-features)
+    - [Cosine Similarity for Ranking Web Search Results](#cosine-similarity-for-ranking-web-search-results)
+      - [Cosine Similarity Formula:](#cosine-similarity-formula)
+      - [Vector Ordering by Cosine Similarity:](#vector-ordering-by-cosine-similarity)
+    - [Addressing Data Relevance: A Formula for Weighting Views](#addressing-data-relevance-a-formula-for-weighting-views)
+      - [The Problem:](#the-problem)
+      - [The Formula:](#the-formula)
   - [💻 Usage](#-usage)
   - [💾 Structure](#-structure)
   - [🚫 Limitations](#-limitations)
@@ -105,6 +111,8 @@ The Flask application will run locally on `http://127.0.0.1:5000/`.
     .
     │── README.md
     │── requirements.txt
+    │── commands.txt               # Commands to set up the database
+    │── relevance.py               # Contains the calculations for the view based relevance
     └── server.py                  # The file containing the actual server
 <p align="right">(<a href="#top">back to top</a>)</p>
 
