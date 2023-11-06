@@ -22,7 +22,12 @@ This is a simple Flask application that provides two endpoints to search for sim
   - [📎 License](#-license)
 
 ## ❓ Why?
-To distribute the load of handeling user requests and doing the actual rankings of websites, we decided to split the search process in different application, on the hand, there is the server that handles incoming requests and calculates the vectors. On the other hand, there is the application which has been implemented in this repo, which loads the existing website data from a MongoDB database and matches the entries in this database with the user query, to return optimal results.
+To distribute the load of handeling user requests and doing the actual rankings of websites, we decided to split the search process in different application. On the one hand, there is the server that handles incoming requests and calculates the vectors. On the other hand, there is the application which has been implemented in this repo, which loads the existing website data from a MongoDB database and matches the entries in this database with the user query, to return optimal results. Lastly there is the web crawler that updates the search index database.
+<br/> 
+<p align="center">
+<img src="graphics/SearchEngine.png" alt="Structure of our search engine" align="middle" width="700" /> 
+</p>
+<br/> 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## ✨ Features
