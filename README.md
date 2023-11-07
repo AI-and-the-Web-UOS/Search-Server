@@ -8,13 +8,13 @@ This is a simple Flask application that provides two endpoints to search for sim
   - [Project for AI and the Web](#project-for-ai-and-the-web)
   - [📖 Table of Contents](#-table-of-contents)
   - [❓ Why?](#-why)
-  - [✨ Features](#-features)
+  - [✨ Features of the search server](#-features-of-the-search-server)
     - [Cosine Similarity for Ranking Web Search Results](#cosine-similarity-for-ranking-web-search-results)
-      - [Cosine Similarity Formula:](#cosine-similarity-formula)
-      - [Vector Ordering by Cosine Similarity:](#vector-ordering-by-cosine-similarity)
+      - [Cosine Similarity Formula](#cosine-similarity-formula)
+      - [Vector Ordering by Cosine Similarity](#vector-ordering-by-cosine-similarity)
     - [Addressing Data Relevance: A Formula for Weighting Views](#addressing-data-relevance-a-formula-for-weighting-views)
-      - [The Problem:](#the-problem)
-      - [The Formula:](#the-formula)
+      - [The Problem](#the-problem)
+      - [The Formula](#the-formula)
   - [💻 Usage](#-usage)
   - [💾 Structure](#-structure)
   - [🚫 Limitations](#-limitations)
@@ -30,8 +30,8 @@ To distribute the load of handeling user requests and doing the actual rankings 
 <br/> 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-## ✨ Features
-The algorithm to determine the optimal ranking of results features to core parts. First, we match the websites title with the user query to find the optimal match purely based on content. Second, we rely on previously collected data by other users to find the best website for the user.</p>
+## ✨ Features of the search server
+The algorithm to determine the optimal ranking of results features two core parts. First, we match the websites title with the user query to find the optimal match purely based on content. Second, we rely on previously collected data by other users to find the best website for the user.</p>
 
 The website selection process on this server, triggered by the '/search' endpoint, operates as follows: It expects a JSON object in the GET request, containing a query vector. The provided query vector is compared to the vector representations of websites stored in the MongoDB collection. Using cosine similarity calculations, the server measures the similarity between the query vector and each stored vector. Websites are then ranked by their similarity to the query vector, and the results are returned as a list of websites and their respective similarity scores. This process enables users to search for websites that are most similar to the provided query vector, which can be a valuable feature for various applications such as content recommendation or similarity-based search.
 
@@ -39,7 +39,7 @@ The website selection process on this server, triggered by the '/search' endpoin
 
 Cosine similarity is a valuable technique for ranking the results of a web search query, as the websites titles are converted into vectors using NLP-models (sent2vec). It measures the similarity between two vectors, providing a way to determine how closely a web page's title aligns with the user's search query. This is particularly effective because it considers the direction and magnitude of vectors, allowing for a more nuanced comparison.
 
-#### Cosine Similarity Formula:
+#### Cosine Similarity Formula
 
 $$
 \text{Cosine Similarity}(\mathbf{v}, \mathbf{u}) = \frac{\mathbf{v} \cdot \mathbf{u}}{\|\|\mathbf{v}\|\| \|\|\mathbf{u}\|\|}
@@ -49,7 +49,7 @@ $$
 - `||v||` represents the L2 norm (magnitude) of vector `v`.
 - `||u||` represents the L2 norm (magnitude) of vector `u`.
 
-#### Vector Ordering by Cosine Similarity:
+#### Vector Ordering by Cosine Similarity
 To rank search results, sort website titles represented as vectors {v₁, v₂, ..., vₖ} by their cosine similarity to the user's query vector `t`. The ordering is done in descending order based on the similarity value:
 
 ```
@@ -66,11 +66,11 @@ This technique is powerful because it enables search engines to retrieve and pre
 
 In various data-driven applications, determining the relevance of data points, such as views or interactions, is a critical challenge. One common scenario involves assessing the importance of such data while considering both the quantity and the recency of those interactions. 
 
-#### The Problem:
+#### The Problem
 
 The challenge lies in appropriately valuing the data points, as not all views are equal, and their relevance change over time. To address this issue, a formula has been devised to calculate a relevance score from views.
 
-#### The Formula:
+#### The Formula
 
 The relevance score formula is as follows:
 
@@ -114,6 +114,11 @@ The Flask application will run locally on `http://127.0.0.1:5000/`.
 <!-- Project Structure -->
 
     .
+    │── graphics
+    │     └── SearchEngine.png
+    │── searchDatabase
+    │     ├── Views.bson           # Example data for the views table
+    │     └── Website.bson         # Example data for the Website table
     │── README.md
     │── requirements.txt
     │── commands.txt               # Commands to set up the database
@@ -126,11 +131,14 @@ Efficiently managing server loads is a critical aspect of web service optimizati
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## 📝 Authors
-[Cornelius Wolff](mailto:cowolff@uos.de)<br/>
+[Cornelius Wolff](mailto:cowolff@uos.de) (main maintainer of the repo)<br/>
+[Christine Arnold](mailto:carnoldt@uni-osnabrueck.de)<br/>
+[Jonah Schlie](mailto:jschlie@uni-osnabrueck.de)<br/>
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## 📎 License
-Copyright 2022 Cornelius Wolff
+Copyright 2022 Cornelius Wolff, Christine Arnold, Jonah Schlie
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
