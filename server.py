@@ -2,23 +2,32 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient
 import numpy as np
 from scipy.spatial.distance import cdist
-import math
-from datetime import datetime, timedelta
-import time
-from relevance import *
+from datetime import datetime
 import threading
+from relevance import periodic_task
+from index import IndexUpdater
 
 app = Flask(__name__)
 
+# MongoDB connection URI
 mongoDB = 'mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.0.2'
 
-# Set up a connection to your MongoDB database
+# The index updater that will be used to manage the background task of updating the index
+index = IndexUpdater(mongoDB)
+
+# Set up a connection to the MongoDB database
 client = MongoClient(mongoDB)
 db = client['searchDatabase']
 websiteCollection = db['Website']
 
 @app.route('/search', methods=['GET'])
 def search():
+    """
+    Endpoint for performing a search based on a provided vector.
+
+    Returns:
+        JSON: A list of search results sorted by relevance.
+    """
     # Get the JSON data from the request
     data = request.get_json()
 
@@ -30,12 +39,9 @@ def search():
     if not query_vector.any():
         return jsonify({'error': 'No vector provided'}), 400
 
-    # Retrieve documents from the MongoDB websiteCollection
-    documents = list(websiteCollection.find())
-
     # Calculate cosine similarity between the query vector and stored vectors
     results = []
-    for document in documents:
+    for document in index.index_list:
         vector = np.array(document['vector'])
         similarity = cdist([query_vector], [vector])[0]
         results.append({
@@ -52,6 +58,12 @@ def search():
 
 @app.route('/addView', methods=['POST'])
 def add_view():
+    """
+    Endpoint for adding views to a website.
+
+    Returns:
+        str: An empty response with a status code of 200.
+    """
     # Get the JSON data from the request
     data = request.get_json()
 
@@ -59,7 +71,7 @@ def add_view():
         return jsonify({'error': 'No JSON data provided'}), 400
     
     url = data["site"]
-    
+
     # Get the current week and year
     current_week = datetime.now().isocalendar()[1]
     current_year = datetime.now().year
@@ -85,6 +97,13 @@ def add_view():
     return "", 200
 
 if __name__ == '__main__':
-    x = threading.Thread(target=periodic_task, args=(mongoDB,), daemon=True)
-    x.start()
+    # Start a thread for the relevance periodic task
+    relevance_thread = threading.Thread(target=periodic_task, args=(mongoDB,), daemon=True)
+    relevance_thread.start()
+
+    # Create a thread for the background task of updating the index
+    index_thread = threading.Thread(target=index.background_task)
+    index_thread.start()
+
+    # Run the Flask application
     app.run()

@@ -35,6 +35,10 @@ The algorithm to determine the optimal ranking of results features two core part
 
 The website selection process on this server, triggered by the '/search' endpoint, operates as follows: It expects a JSON object in the GET request, containing a query vector. The provided query vector is compared to the vector representations of websites stored in the MongoDB collection. Using cosine similarity calculations, the server measures the similarity between the query vector and each stored vector. Websites are then ranked by their similarity to the query vector, and the results are returned as a list of websites and their respective similarity scores. This process enables users to search for websites that are most similar to the provided query vector, which can be a valuable feature for various applications such as content recommendation or similarity-based search.
 
+In order to circumvent any negative performance impacts by having to access the database every time the API is called, we decided to implement a background thread that updates an index list every hour from the database. As this index list is stored in the RAM, the performance should be much better compared to loading the data from the mongoDB instance, which stores its data on the hard drive. The same principle applies to the calculation of the relevance score based on past views. As looking up all views for each website during every API call results in a very bad runtime, we decided to implement a second background thread that updates the view based relevance of a website every hour.
+
+Next, we will list the two main algorithms determining the relevance of a website to a specific search prompt.
+
 ### Cosine Similarity for Ranking Web Search Results
 
 Cosine similarity is a valuable technique for ranking the results of a web search query, as the websites titles are converted into vectors using NLP-models (sent2vec). It measures the similarity between two vectors, providing a way to determine how closely a web page's title aligns with the user's search query. This is particularly effective because it considers the direction and magnitude of vectors, allowing for a more nuanced comparison.
@@ -119,6 +123,7 @@ The Flask application will run locally on `http://127.0.0.1:5000/`.
     │── searchDatabase
     │     ├── Views.bson           # Example data for the views table
     │     └── Website.bson         # Example data for the Website table
+    │── index.py                   # Contains class, that updates the index in the background
     │── README.md
     │── requirements.txt
     │── commands.txt               # Commands to set up the database
