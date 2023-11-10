@@ -16,6 +16,7 @@ This is a simple Flask application that provides two endpoints to search for sim
       - [The Problem](#the-problem)
       - [The Formula](#the-formula)
   - [💻 Usage](#-usage)
+  - [📖 API Documentation](#-api-documentation)
   - [💾 Structure](#-structure)
   - [🚫 Limitations](#-limitations)
   - [📝 Authors](#-authors)
@@ -112,6 +113,91 @@ python server.py
 ```
 
 The Flask application will run locally on `http://127.0.0.1:5000/`.
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+## 📖 API Documentation
+
+<!-- omit in toc -->
+### Search Endpoint
+
+`GET /search`
+
+This endpoint allows users to perform a search based on a provided vector. The search results are returned in JSON format, sorted by relevance.
+
+<!-- omit in toc -->
+#### Request
+- Method: `GET`
+- Content-Type: `application/json`
+
+<!-- omit in toc -->
+#### Content
+- `Vector` (required): An array representing the vector for the search query.
+
+<!-- omit in toc -->
+#### Example Request
+```json
+GET /search
+{
+  "Vector": [0.1, 0.5, 0.3]
+}
+```
+
+<!-- omit in toc -->
+#### Response
+- Content-Type: `json`
+- A list of search results containing website information, relevance scores, and content details.
+
+<!-- omit in toc -->
+#### Example Response
+```json
+{
+  "results": [
+    {
+      "website": "https://example.com",
+      "score": 0.87,
+      "content": "Lorem ipsum...",
+      "title": "Example Website"
+    },
+    {
+      "website": "https://another.com",
+      "score": 0.76,
+      "content": "Dolor sit amet...",
+      "title": "Another Website"
+    }
+    // ... other results
+  ]
+}
+```
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+<!-- omit in toc -->
+### Add View Endpoint
+
+`POST /addView`
+
+This endpoint allows users to increment the view count for a specified website. The response is an empty body with a status code of 200.
+
+<!-- omit in toc -->
+#### Request
+- Method: `POST`
+- Content-Type: `json`
+
+<!-- omit in toc -->
+#### Content
+- `site` (required): The URL of the website for which views should be added.
+
+<!-- omit in toc -->
+#### Example Request
+```json
+POST /addView
+{
+  "site": "https://example.com"
+}
+```
+<!-- omit in toc -->
+#### Response
+- An empty response body.
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## 💾 Structure
