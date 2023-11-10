@@ -135,8 +135,9 @@ This endpoint allows users to perform a search based on a provided vector. The s
 
 <!-- omit in toc -->
 #### Example Request
-```json
+
 GET /search
+```json
 {
   "Vector": [0.1, 0.5, 0.3]
 }
@@ -188,8 +189,8 @@ This endpoint allows users to increment the view count for a specified website. 
 
 <!-- omit in toc -->
 #### Example Request
-```json
 POST /addView
+```json
 {
   "site": "https://example.com"
 }
