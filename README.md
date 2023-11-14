@@ -231,7 +231,7 @@ Efficiently managing server loads is a critical aspect of web service optimizati
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## 📎 License
-Copyright 2022 Cornelius Wolff, Christine Arnold, Jonah Schlie
+Copyright 2022 Cornelius Wolff, Christine Arnoldt, Jonah Schlie
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
