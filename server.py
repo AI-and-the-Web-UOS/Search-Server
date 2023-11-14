@@ -43,7 +43,7 @@ def search():
     results = []
     for document in index.index_list:
         vector = np.array(document['vector'])
-        similarity = cdist([query_vector], [vector])[0]
+        similarity = -1 * cdist([query_vector], [vector])[0]
         results.append({
             'website': document['url'],
             'score': similarity.tolist()[0] + document["relevance"],
@@ -106,4 +106,4 @@ if __name__ == '__main__':
     index_thread.start()
 
     # Run the Flask application
-    app.run()
+    app.run(port=5001)
