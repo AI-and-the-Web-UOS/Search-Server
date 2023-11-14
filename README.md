@@ -225,7 +225,7 @@ Efficiently managing server loads is a critical aspect of web service optimizati
 
 ## 📝 Authors
 [Cornelius Wolff](mailto:cowolff@uos.de) (main maintainer of the repo)<br/>
-[Christine Arnold](mailto:carnoldt@uni-osnabrueck.de)<br/>
+[Christine Arnoldt](mailto:carnoldt@uni-osnabrueck.de)<br/>
 [Jonah Schlie](mailto:jschlie@uni-osnabrueck.de)<br/>
 
 <p align="right">(<a href="#top">back to top</a>)</p>
