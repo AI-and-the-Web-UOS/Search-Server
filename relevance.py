@@ -6,11 +6,16 @@ import math
 from datetime import datetime, timedelta
 import time
 
+from database import WebsiteDatabase
+
 def get_last_weeks(db, website_url):
     # Query for views within the last 10 weeks for the specified website
-    views_data = db.Views.find({
-        "url": website_url,
-    })
+    # views_data = db.Views.find({
+    #     "url": website_url,
+    # })
+
+    # Get the current date
+    views_data = db.get_views_for_website(website_url)
 
     # Add the views to a list
     views = []
@@ -22,7 +27,7 @@ def get_last_weeks(db, website_url):
 def updateRelevanceScores(db):
 
     # Retrieve all websites from the "Website" collection
-    websites = db.Website.find({})
+    websites = db.get_all_websites()
 
     # Calculate and update the relevance score for each website
     for website in websites:
@@ -30,23 +35,25 @@ def updateRelevanceScores(db):
         data = get_last_weeks(db, url)
         relevance_score = float(calculate_relevance_score(data))
         # Update the relevance field in the database
-        db.Website.update_one({"_id": website["_id"]}, {"$set": {"relevance": relevance_score}})
+        db.update_website_relevance(url, relevance_score)
 
 # Define a function to run the update task periodically
-def periodic_task(mongoDB):
+def periodic_task(database_name):
     # Connect to MongoDB
-    client = MongoClient(mongoDB) 
-    db = client.searchDatabase
+    # client = MongoClient(mongoDB) 
+    # db = client.searchDatabase
+    db = WebsiteDatabase(database_name)
     while True:
         try:
             updateRelevanceScores(db)
             time.sleep(3600)  # Sleep for one hour (3600 seconds)
         except:
-            client.close()
+            # client.close()
             print("Could not update relevance score")
             time.sleep(60)
-            client = MongoClient(mongoDB) 
-            db = client.searchDatabase
+            # client = MongoClient(mongoDB)
+            db = WebsiteDatabase(database_name)
+            # db = client.searchDatabase
 
 def calculate_relevance_score(views):
     relevance_score = 0

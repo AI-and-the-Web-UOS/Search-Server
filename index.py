@@ -2,6 +2,8 @@ import time
 import threading
 from pymongo import MongoClient
 
+from database import WebsiteDatabase
+
 class IndexUpdater:
     """
     IndexUpdater class manages the background task of updating the index list from the MongoDB database.
@@ -15,7 +17,7 @@ class IndexUpdater:
         background_task(): A background task that periodically updates the index list from the MongoDB collection.
     """
 
-    def __init__(self, mongoDB):
+    def __init__(self, database_name):
         """
         Initialize the IndexUpdater.
 
@@ -23,7 +25,8 @@ class IndexUpdater:
             mongoDB (str): The URI for connecting to the MongoDB server.
         """
         self.index_list = []
-        self.mongoDB = mongoDB
+        # self.mongoDB = mongoDB
+        self.database_name = database_name
         self.lock = threading.Lock()
 
     def background_task(self):
@@ -37,14 +40,17 @@ class IndexUpdater:
         The method runs indefinitely with a sleep period of one hour between iterations.
         """
         # Establish a MongoDB connection using the provided URI
-        client = MongoClient(self.mongoDB)
-        db = client['searchDatabase']
-        websiteCollection = db['Website']
+        print("Connecting to MongoDB....")
+        database = WebsiteDatabase(self.database_name)
+        # client = MongoClient(self.mongoDB)
+        print("Connected")
+        # db = client['searchDatabase']
+        # websiteCollection = db['Website']
 
         while True:
             try:
                 # Retrieve documents from the 'Website' collection in the 'searchDatabase'
-                documents = list(websiteCollection.find())
+                documents = database.get_all_websites()
                 
                 # Safely update the index_list within a locked section
                 with self.lock:
@@ -56,15 +62,19 @@ class IndexUpdater:
                             "url": document['url'],
                             "relevance": document['relevance'],
                             "content": document['content'],
-                            "title": document['title']
+                            "title": document['title'],
+                            "date": document['added']
                         }
                         self.index_list.append(current)
 
             except Exception as e:
                 # If an exception occurs during MongoDB operations, attempt to reconnect
-                client = MongoClient(self.mongoDB)
-                db = client['searchDatabase']
-                websiteCollection = db['Website']
+                print("Reconnecting with database....")
+                database = WebsiteDatabase(self.database_name)
+                # client = MongoClient(self.mongoDB)
+                print("Conntected")
+                # db = client['searchDatabase']
+                # websiteCollection = db['Website']
 
             # Sleep for one hour before the next iteration of the background task
             time.sleep(3600)
