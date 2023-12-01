@@ -171,10 +171,14 @@ class WebsiteDatabase:
             title, content, added, url, vector_json, relevance = website
             vector = json.loads(vector_json)
 
+            date_format = "%Y-%m-%d %H:%M:%S.%f"
+            datetime_object = datetime.strptime(added, date_format)
+            timestamp = datetime.timestamp(datetime_object)
+
             website_dict = {
                 'title': title,
                 'content': content,
-                'added': added,
+                'added': timestamp,
                 'url': url,
                 'vector': vector,
                 'relevance': relevance

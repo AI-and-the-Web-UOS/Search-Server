@@ -24,8 +24,6 @@ index = IndexUpdater(database_name)
 # db = client['searchDatabase']
 # websiteCollection = db['Website']
 
-database = WebsiteDatabase(database_name)
-
 @app.route('/search', methods=['GET'])
 def search():
     """
@@ -72,6 +70,7 @@ def add_view():
     Returns:
         str: An empty response with a status code of 200.
     """
+    database = WebsiteDatabase(database_name)
     # Get the JSON data from the request
     data = request.get_json()
 
