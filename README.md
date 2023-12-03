@@ -23,7 +23,7 @@ This is a simple Flask application that provides two endpoints to search for sim
   - [📎 License](#-license)
 
 ## ❓ Why?
-To distribute the load of handeling user requests and doing the actual rankings of websites, we decided to split the search process in different application. On the one hand, there is the server that handles incoming requests and calculates the vectors. On the other hand, there is the application which has been implemented in this repo, which loads the existing website data from a MongoDB database and matches the entries in this database with the user query, to return optimal results. Lastly there is the web crawler that updates the search index database.
+To distribute the load of handeling user requests and doing the actual rankings of websites, we decided to split the search process in different application. On the one hand, there is the front-end-server that handles incoming requests and calculates the vectors. On the other hand, there is the search-server which has been implemented in this repo, which loads the existing website data from a MongoDB database and matches the entries in this database with the user query, to return optimal results. Lastly there is the web crawler that updates the search index database.
 <br/> 
 <p align="center">
 <img src="graphics/SearchEngine.png" alt="Structure of our search engine" align="middle" width="700" /> 
@@ -34,7 +34,7 @@ To distribute the load of handeling user requests and doing the actual rankings 
 ## ✨ Features of the search server
 The algorithm to determine the optimal ranking of results features two core parts. First, we match the websites title with the user query to find the optimal match purely based on content. Second, we rely on previously collected data by other users to find the best website for the user.</p>
 
-The website selection process on this server, triggered by the '/search' endpoint, operates as follows: It expects a JSON object in the GET request, containing a query vector. The provided query vector is compared to the vector representations of websites stored in the MongoDB collection. Using cosine similarity calculations, the server measures the similarity between the query vector and each stored vector. Websites are then ranked by their similarity to the query vector, and the results are returned as a list of websites and their respective similarity scores. This process enables users to search for websites that are most similar to the provided query vector, which can be a valuable feature for various applications such as content recommendation or similarity-based search.
+The website selection process on this server, triggered by the '/search' endpoint, operates as follows: It expects a JSON object in the GET request, containing a query vector. The provided query vector is compared to the vector representations of websites stored in the MongoDB collection. Using cosine similarity calculations, the server measures the similarity between the query vector and each stored website vector. Websites are then ranked by their similarity to the query vector, and the results are returned as a list of websites and their respective similarity scores. This process enables users to search for websites that are most similar to the provided query vector, which can be a valuable feature for various applications such as content recommendation or similarity-based search.
 
 In order to circumvent any negative performance impacts by having to access the database every time the API is called, we decided to implement a background thread that updates an index list every hour from the database. As this index list is stored in the RAM, the performance should be much better compared to loading the data from the mongoDB instance, which stores its data on the hard drive. The same principle applies to the calculation of the relevance score based on past views. As looking up all views for each website during every API call results in a very bad runtime, we decided to implement a second background thread that updates the view based relevance of a website every hour.
 
@@ -42,7 +42,7 @@ Next, we will list the two main algorithms determining the relevance of a websit
 
 ### Cosine Similarity for Ranking Web Search Results
 
-Cosine similarity is a valuable technique for ranking the results of a web search query, as the websites titles are converted into vectors using NLP-models (sent2vec). It measures the similarity between two vectors, providing a way to determine how closely a web page's title aligns with the user's search query. This is particularly effective because it considers the direction and magnitude of vectors, allowing for a more nuanced comparison.
+We rely on calculating the cosine similarity for ranking the results of a web search query, as the websites titles and the search query are converted into vectors using the [sent2vec library](https://pypi.org/project/sent2vec/) and the [distilbert-base-multilingual-cased](https://huggingface.co/distilbert-base-multilingual-cased) model. It measures the similarity between the two sentence vectors, providing a way to determine how closely a web page's title aligns with the user's search query. This is particularly effective because it considers the direction and magnitude of vectors, allowing for a more nuanced comparison.
 
 #### Cosine Similarity Formula
 
@@ -55,7 +55,7 @@ $$
 - `||u||` represents the L2 norm (magnitude) of vector `u`.
 
 #### Vector Ordering by Cosine Similarity
-To rank search results, sort website titles represented as vectors {v₁, v₂, ..., vₖ} by their cosine similarity to the user's query vector `t`. The ordering is done in descending order based on the similarity value:
+To rank search results, we sort website titles represented as vectors {v₁, v₂, ..., vₖ} by their cosine similarity to the user's query vector `t`. The ordering is done in descending order based on the similarity value:
 
 ```
 Sort vectors {v₁, v₂, ..., vₖ} by S(vᵢ, t) in descending order:
@@ -69,7 +69,7 @@ This technique is powerful because it enables search engines to retrieve and pre
 
 ### Addressing Data Relevance: A Formula for Weighting Views
 
-In various data-driven applications, determining the relevance of data points, such as views or interactions, is a critical challenge. One common scenario involves assessing the importance of such data while considering both the quantity and the recency of those interactions. 
+In our search engine, determining the relevance of the crawled web pages to the search queries does not only depend upon the distance between the two sentence vectors, but also on other data points, such as number of views or interactions. Our developed algorithm involves assessing the importance of such data while considering both the quantity and the recency of those interactions. 
 
 #### The Problem
 
@@ -86,6 +86,8 @@ s = \sum_{w=0}^{10} [\frac{1}{w+1} \cdot \frac{1}{1 + e^{(1 - \frac{\text{views}
 $$
 
 In this formula, (_w_) represents the week, and $\text{views}(w)\$ is the number of views for that week. The summation considers views over 11 weeks and calculates a relevance score that balances the significance of views based on both their quantity and recency. Additionally, the formula includes a term that includes all even older views, providing further adjustments to the relevance score. This approach is valuable in scenarios where it's essential to prioritize more recent and relevant data while accounting for diminishing importance of older user data, while not completely ignoring the later.
+
+In summary, this algorithm takes past user behaviour into account, when it comes to the importance of the crawled websites. While doing so, it places a higher importance on recent views, as those serve as an indicator for current relevancy.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
